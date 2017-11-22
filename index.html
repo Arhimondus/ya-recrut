@@ -5,10 +5,12 @@
 <link rel="icon" href="icon.ico">
 <link rel="stylesheet" href="styles.css"/>
 </head>
-<body>
+<body style="-webkit-app-region: drag;">
 <div id="app">
 	<div class="slides">
-		<img v-if="selected_slide" :src="'data/' + slides[selected_slide] + '.png'"/>
+		<transition name="slide">
+			<img v-for="(slide, index) in slides" v-if="selected_slide == index" :src="'data/' + slide + '.png'"/>
+		</transition>
 	</div>
 </div>
 <script>
@@ -24,6 +26,7 @@ var application = new Vue({
 		inner_humidity: 60,
 		slides: [],
 		selected_slide: null,
+		show_slide: false,
 	},
 });
 application.$mount("#app");
@@ -32,11 +35,14 @@ function startSlide(arr) {
 	application.slides = arr;
 	let index = 0;
 	let func = () => {
+		application.selected_slide = null;
+		//application.$forceUpdate();
 		application.selected_slide = [index++];
 		if(index >= application.slides)
 			clearInverval(interval);
 	};
-	var interval = setInterval(func, 1500);
+	func();
+	var interval = setInterval(func, 2500);
 }
 
 startSlide(["mental-blacksmith", "powered_by", "disclaimer", "ya-recrut"]);

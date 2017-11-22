@@ -5,6 +5,8 @@
 		"title": "Я - рекрут",
 		"icon": "icon.ico",
 		"min_width": 800,
-		"min_height": 600
+		"min_height": 600,
+		"max_width": 800,
+		"max_height": 600
 	}
 }
