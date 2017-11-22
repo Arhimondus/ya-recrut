@@ -1,0 +1,84 @@
+﻿<!DOCTYPE>
+<html>
+<head>
+<script src="vue.js"></script>
+<script src="jquery.js"></script>
+<script src="flot.js"></script>
+<script src="flot.time.js"></script>
+<script src="flot.resize.js"></script>
+<link rel="icon" href="icon.ico">
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div id="app">
+	<div class="header">
+		<header class="title"><img class="title__icon" src="icon.svg"/>Климат Контроль Делюкс</header>
+		<div class="changer"><div class="fire"><button class="minus" @click="client_temperature--"></button>{{ client_temperature }}<button class="plus" @click="client_temperature++"></button></div> <div class="water"><button class="minus" @click="client_humidity--"></button>{{ client_humidity }}<button class="plus" @click="client_humidity++"></button></div></div>
+	</div>
+	<div class="outer">
+		<div id="placeholder" class="climat-control-placeholder"></div>
+	</div>
+	<div class="errors">
+		<div class="error" v-for="error in errors">
+			<div class="error__title">{{ error.title }}</div>
+			<ul class="error__rows">
+				<li class="error_row" v-for="row in error.rows">{{ row }}</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<script>
+var fs = require('fs');
+var raw_data = fs.readFileSync('data/it_decrease.csv', 'utf-8');
+
+var full_data = raw_data.split("\n").filter((f,index) => index!=0).map(el => el.split(";")).map(el => ({datetime: new Date(el[0].slice(0,4) + "-" + el[0].slice(4,6) + "-" + el[0].slice(6,8) + "T" + el[0].slice(9,17)), ct: el[1]-0, it: el[2]-0, ot: el[3]-0, ch:el[4]-0, ih: el[5]-0, oh: el[6]-0}));
+
+var application = new Vue({
+	data: {
+		data: 5,
+		message: '',
+		errors: [{ title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }],
+		client_temperature: 15,
+		client_humidity: 50,
+		inner_temperature: 20,
+		inner_humidity: 60,
+	},
+});
+application.$mount("#app");
+
+/*var d1 = [];
+for (var i = 0; i < 14; i += 0.5) {
+	d1.push([i, Math.sin(i)]);
+}*/
+
+//var ct = [full_data.map(m => { return [m.datetime, m.ct]; })];
+//var it = [full_data.map(m => { return [m.datetime, m.it]; })];
+
+var ct = full_data.map(m => { return [m.datetime, m.ct]; });
+var it = full_data.map(m => { return [m.datetime, m.it]; });
+
+console.log(ct);
+console.log(it);
+
+// A null signifies separate line segments
+
+//var d3 = [[0, 12], [7, 12], null, [7, 2.5], [12, 2.5]];
+
+$.plot("#placeholder", [ ct, it ], {
+	xaxis: {
+		mode: "time",
+		minTickSize: [30, "minute"],
+		/*min: (new Date(1999, 11, 31)).getTime(),
+		max: (new Date(2017, 0, 1)).getTime(),*/
+		//twelveHourClock: true
+	},
+});
+
+// $("#placeholder").resize(function () {
+	// application.message = "Placeholder is now "
+		// + $(this).width() + "x" + $(this).height()
+		// + " pixels";
+// });
+</script>
+</body>
+</html>

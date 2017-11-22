@@ -1,0 +1,10 @@
+{
+	"name": "ya-recrut",
+	"main": "index.html",
+	"window": {
+		"title": "Я - рекрут",
+		"icon": "icon.ico",
+		"min_width": 800,
+		"min_height": 600
+	}
+}
