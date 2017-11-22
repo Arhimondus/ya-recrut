@@ -2,28 +2,13 @@
 <html>
 <head>
 <script src="vue.js"></script>
-<script src="jquery.js"></script>
-<script src="flot.js"></script>
-<script src="flot.time.js"></script>
-<script src="flot.resize.js"></script>
 <link rel="icon" href="icon.ico">
 <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 <div id="app">
 	<div class="slides">
-		<img src="mental-blacksmith.png"/>
-	</div>
-	<div class="outer">
-		<div id="placeholder" class="climat-control-placeholder"></div>
-	</div>
-	<div class="errors">
-		<div class="error" v-for="error in errors">
-			<div class="error__title">{{ error.title }}</div>
-			<ul class="error__rows">
-				<li class="error_row" v-for="row in error.rows">{{ row }}</li>
-			</ul>
-		</div>
+		<img v-if="selected_slide" :src="'data/' + slides[selected_slide] + '.png'"/>
 	</div>
 </div>
 <script>
@@ -44,12 +29,17 @@ var application = new Vue({
 application.$mount("#app");
 
 function startSlide(arr) {
-
+	application.slides = arr;
+	let index = 0;
+	let func = () => {
+		application.selected_slide = [index++];
+		if(index >= application.slides)
+			clearInverval(interval);
+	};
+	var interval = setInterval(func, 1500);
 }
 
-startSlide(["mental-blacksmith.png", 2, 3], {
-	application.slides = [1, 2, 3];
-});
+startSlide(["mental-blacksmith", "powered_by", "disclaimer", "ya-recrut"]);
 </script>
 </body>
 </html>
