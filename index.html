@@ -7,10 +7,46 @@
 </head>
 <body style="-webkit-app-region: drag;">
 <div id="app">
-	<div class="slides">
+	<div class="slides" v-if="page == 'start' || page == 'story'">
 		<transition name="slide">
 			<img v-for="(slide, index) in slides" v-if="selected_slide == index" :src="'data/' + slide + '.png'"/>
 		</transition>
+	</div>
+	
+	<div class="slides" v-if="page == 'start'">
+		<transition name="slide">
+			<img v-for="(slide, index) in slides" v-if="selected_slide == index" :src="'data/' + slide + '.png'"/>
+		</transition>
+	</div>
+	
+	<div class="menu" v-if="page == 'menu'">
+		<h2>Меню</h2>
+		<ul>
+			<li><button @click="to_page('difficult')">Новая игра</button></li>
+			<li><button @click="exit">На выход</button></li>
+		</ul>
+	</div>
+	
+	<div class="difficult" v-if="page == 'difficult'">
+		<h2>Выбор сложности</h2>
+		<div style="display: flex; flex-direction: row; justify-content: center;">
+			<div style="display: flex; flex-direction: column; margin-right: 25px; align-items: center; justify-content: center;">
+				<img style="border: 1px solid black; align-self: center;" :src="'data/roman-' + difficult + '.png'"/>
+				<div style="text-align: center;">Осталось<br/>очков<br/>[{{ free }} / {{ max_free }}]</div>
+			</div>
+			<ul style="padding: 0;margin: 0;">
+				<li><button :class="{ bordered: difficult == 1 }" @click="difficult = 1; reset()">Новобранец</button></li>
+				<li><button :class="{ bordered: difficult == 2 }" @click="difficult = 2; reset()" >Рекрут</button></li>
+				<li><button :class="{ bordered: difficult == 3 }" @click="difficult = 3; reset()">Солдат</button></li>
+			</ul>
+		</div>
+		<ul class="stats">
+			<li>Убеждение [{{ ubedi }} / 5] <button class="small" @click="if(free && ubedi < 5) { ubedi++; free-- }">увеличить! </button> <p>Искусство убеждать разумными и правдивыми аргументами.</p></li>
+			<li>Интеллект [{{ intel }} / 5] <button class="small" @click="if(free && intel < 5) { intel++; free-- }">увеличить! </button> <p>Интеллект показывает вас с лучше стороные по отношению к кандидатам и позволяет вам делать обоснованные выводы.</p></li>
+			<li>Коварство [{{ kovar }} / 5] <button class="small" @click="if(free && kovar < 5) { kovar++; free-- }">увеличить! </button> <p>Оперирование несуществующими абстракциями для введения в заблуждение кандидатов, когда разумных доводов уже не осталось.</p></li>
+			<li>Выносливость [{{ vinos }} / 5] <button class="small" @click="if(free && vinos < 5) { vinos++; free-- }">увеличить! </button> <p>Сколько вы сможете продержаться пока не лишитесь всех своих сил.</p></li>
+			<li>Интуиция [{{ intui }} / 5] <button class="small" @click="if(free && intui < 5) { intui++; free-- }">увеличить! </button> <p>Важнейший навык для определения того, чего не удалось определить рациональными методами.</p></li>
+		</ul>
 	</div>
 </div>
 <script>
@@ -18,15 +54,36 @@
 var application = new Vue({
 	data: {
 		data: 5,
-		message: '',
-		errors: [{ title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }, { title: "Жестокая ошибка", rows: ["123213-1", "124242-2"] }],
-		client_temperature: 15,
-		client_humidity: 50,
-		inner_temperature: 20,
-		inner_humidity: 60,
+		page: 'start',
 		slides: [],
 		selected_slide: null,
-		show_slide: false,
+		difficult: 1,
+		
+		ubedi: 1,
+		intel: 1,
+		kovar: 1,
+		vinos: 1,
+		intui: 1,
+		
+		free: 12,
+		max_free: 12
+	},
+	methods: {
+		reset() {
+			this.ubedi = 1;
+			this.intel = 1;
+			this.kovar = 1;
+			this.vinos = 1;
+			this.intui = 1;
+			this.max_free = 12 - (this.difficult - 1) * 2;
+			this.free = this.max_free;
+		},
+		to_page(d) {
+			this.page = d;
+		},
+		exit() {
+			nw.App.quit();
+		},
 	},
 });
 application.$mount("#app");
@@ -38,11 +95,13 @@ function startSlide(arr) {
 		application.selected_slide = null;
 		//application.$forceUpdate();
 		application.selected_slide = [index++];
-		if(index >= application.slides)
-			clearInverval(interval);
+		if(index >= application.slides.length) {
+			application.page = 'menu';
+			clearInterval(interval);	
+		}
 	};
 	func();
-	var interval = setInterval(func, 2500);
+	var interval = setInterval(func, 500);
 }
 
 startSlide(["mental-blacksmith", "powered_by", "disclaimer", "ya-recrut"]);

@@ -4,6 +4,7 @@ html, body {
 	width: 800px;
 	height: 600px;
 	overflow: hidden;
+	font-family: "Courier New";
 }
 
 ::-webkit-scrollbar {
@@ -16,4 +17,52 @@ html, body {
 }
 .slide-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
 	opacity: 0.1;
+}
+
+h2 {
+	text-align: center;
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+}
+
+.menu ul {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+}
+
+button {
+	width: 250px;
+	height: 50px;
+	font-size: 24px;
+	font-family: "Courier New";
+	background-color: white;
+	border: 2px solid black;
+	cursor: pointer;
+	margin-bottom: 25px;
+}
+
+button.small {
+	width: 100px;
+	height: 25px;
+	font-size: 12px;
+	margin-bottom: 0;
+}
+
+.bordered {
+	text-decoration: underline;
+}
+
+.stats p {
+	font-size: 12px;
+}
+
+.stats {
+	padding: 0 50px;
+	margin: 0;
 }
