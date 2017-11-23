@@ -13,16 +13,10 @@
 		</transition>
 	</div>
 	
-	<div class="slides" v-if="page == 'start'">
-		<transition name="slide">
-			<img v-for="(slide, index) in slides" v-if="selected_slide == index" :src="'data/' + slide + '.png'"/>
-		</transition>
-	</div>
-	
 	<div class="menu" v-if="page == 'menu'">
 		<h2>Меню</h2>
 		<ul>
-			<li><button @click="to_page('difficult')">Новая игра</button></li>
+			<li><button @click="to_story()">Новая игра</button></li>
 			<li><button @click="exit">На выход</button></li>
 		</ul>
 	</div>
@@ -84,11 +78,15 @@ var application = new Vue({
 		exit() {
 			nw.App.quit();
 		},
+		to_story() {
+			this.page = 'story';
+			startSlide(["story-1", "story-2", "story-3", "story-4", "story-5", "story-6", "story-7", "story-8", "story-9"], 3000, "difficult");
+		},
 	},
 });
 application.$mount("#app");
 
-function startSlide(arr) {
+function startSlide(arr, interval = 500, to) {
 	application.slides = arr;
 	let index = 0;
 	let func = () => {
@@ -96,15 +94,15 @@ function startSlide(arr) {
 		//application.$forceUpdate();
 		application.selected_slide = [index++];
 		if(index >= application.slides.length) {
-			application.page = 'menu';
+			application.page = to;
 			clearInterval(interval);	
 		}
 	};
 	func();
-	var interval = setInterval(func, 500);
+	var interval = setInterval(func, interval);
 }
 
-startSlide(["mental-blacksmith", "powered_by", "disclaimer", "ya-recrut"]);
+startSlide(["mental-blacksmith", "powered_by", "disclaimer", "ya-recrut"], 1500, "menu");
 </script>
 </body>
 </html>
