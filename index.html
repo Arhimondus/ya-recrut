@@ -49,13 +49,13 @@
 			<h3>Услуги</h3>
 			<ul>
 				<li>✔ Питание (500 р./сутки)</li>
-				<li><span v-if="internet">✔</span><span v-else>✖</span> Интернет <button class="small long" v-if="!internet" @click="internet = true">Подкл. (1000 р.+10 р./сут)</button></li>
-				<li><span v-if="phone">✔</span><span v-else>✖</span> Телефония <button class="small long" v-if="!phone" @click="phone = true">Подкл. (500 р.+5 р./сут)</button></li>
+				<li><span v-if="internet">✔</span><span v-else>✖</span> Интернет <button class="small long" v-if="!internet" @click="internet = true; money -= 1000;">Подкл. (1000 р.+10 р./сут)</button></li>
+				<li><span v-if="phone">✔</span><span v-else>✖</span> Телефония <button class="small long" v-if="!phone" @click="phone = true; money -= 500;">Подкл. (500 р.+5 р./сут)</button></li>
 			</ul>
 			<h3>Сбор резюме</h3>
 			<ul>
 				<li>✔ Центр занятости</li>
-				<li><span v-if="databases">✔</span><span v-else>✖</span> Закрытые базы данных (треб. Интернет) <button  v-if="!databases" class="small long" @click="if(internet) databases = true">Купить (2000 р.)</button></li>
+				<li><span v-if="databases">✔</span><span v-else>✖</span> Закрытые базы данных (треб. Интернет) <button  v-if="!databases" class="small long" @click="if(internet) databases = true; money -= 2000;">Купить (2000 р.)</button></li>
 				<li><span v-if="social">✔</span><span v-else>✖</span> Соц.сети (треб. Интернет)<button  v-if="!social" class="small long" @click="if(internet) social = true">Завести (5 р./сут)</button></li>
 				<li><span v-if="direct_phone">✔</span><span v-else>✖</span> Прямые звонки (треб. Телефон)<button  v-if="!direct_phone" class="small long" @click="if(phone) direct_phone = true">Использовать (10 р./сут)</button></li>
 				<li><span v-if="events">✔</span><span v-else>✖</span> Посещение мероприятий (треб. Телефон) <button  v-if="!events" class="small long" @click="if(phone) events = true">Посещать (100 р./сут)</button></li>
@@ -67,7 +67,31 @@
 			<ul>
 				<li v-for="type in company.types">Требуются <br/>{{ company.max_count }} {{ types[type][1] }}</li>
 			</ul>
-			<button class="small long" style="float: right;">Начать поиск!</button>
+			<button class="small long" style="float: right;" @click="page = 'searched'">Начать поиск!</button>
+		</div>
+		<div class="date">осталось<br>{{ days_elapsed }}<br>дня</div>
+		<div class="money">{{ money }} р.</div>
+	</div>
+	
+	<div class="computer" v-if="page == 'searched'">
+		<div style="padding: 25px 122px;">
+			<h3>Изнурительным трудом было найдено 7 потенциальных кандидатов!</h3>
+			<button class="small long" style="float: right;" @click="start_sobes">Начать собеседования</button>
+		</div>
+		<div class="date">осталось<br>{{ days_elapsed }}<br>дня</div>
+		<div class="money">{{ money }} р.</div>
+	</div>
+	
+	<div class="computer" v-if="page == 'sobes'">
+		<div style="padding: 25px 122px;">
+			<h2>Собеседование с {{ men.name }}</h2>
+			<ul>
+				<li>Указанный навык: {{ men.virtual_experience }}</li>
+				<li>Оценка навыка: {{ men.rating_experience }}</li>
+			</ul>
+			<ul>
+				<li v-for="question in men.questions_to"><button class="small long">{{ question.question }}</button></li>
+			</ul>
 		</div>
 		<div class="date">осталось<br>{{ days_elapsed }}<br>дня</div>
 		<div class="money">{{ money }} р.</div>
@@ -75,6 +99,8 @@
 </div>
 <script>
 var companies = require('./companies.js');
+var questions = require('./questions.js');
+
 var types = {
 	1: ['IT', 'айтишник(ов)'],
 	2: ['Бухгалтерия', 'айтишник(ов)'],
@@ -86,8 +112,63 @@ var types = {
 	8: ['Строительство', 'строитель(ей)'],
 	9: ['Транспорт', 'водитель(ей)'],
 	10: ['Юриспруденция', 'юрист(ов)'],
-	11: ['Обслуживающий персонал', 'обслуж.персонал(а)']
+	11: ['Обслуживающий персонал', 'обслуж.персонал(а)'],
 };
+var positiveParams = {
+	1: ["Ответственность", 2],
+	2: ["Усидчивость", 2],
+	3: ["Трудолюбие", 3],
+	4: ["Способность к монотонности", 3],
+	5: ["Стрессоустойчивость", 3],
+	6: ["Спокойствие", 1],
+	7: ["Честность", 1],
+	8: ["Порядочность", 1],
+	9: ["Компенетность", 2],
+	10: ["Доброта", 1],
+	11: ["Пунктуальность", 1],
+	12: ["Быстра обучаемость", 3],
+	13: ["Культура", 1],
+};
+var negativeParams = {
+	1: ["Курение", 2],
+	2: ["Алкоголь", 3],
+	3: ["Наркотики", 5],
+	4: ["Непристойное поведение", 3],
+	5: ["Слабое здоровье", 2],
+	6: ["Азартные игры", 3],
+	7: ["Лень", 1],
+	8: ["Агрессивное поведение", 3],
+	9: ["Неряшливость", 2],
+	10: ["Забывчивость", 1],
+};
+var names = {
+	1: "Николай",
+	2: "Валерий",
+	3: "Павел",
+	4: "Григорий",
+	5: "Владислав",
+	6: "Кирилл",
+	7: "Владимир",
+	8: "Ярослав",
+	9: "Фёдор",
+	10: "Михаил",
+	11: "Иннокентий",
+};
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function randomMan() {
+	var man = {};
+	man.name = names[getRandomInt(1, 10)];
+	man.negativeParams = getRandomInt(1, 3) == 1 ? [negativeParams[getRandomInt(1, 10)]] : [];
+	man.positiveParams = getRandomInt(1, 3) == 1 ? [positiveParams[getRandomInt(1, 13)], positiveParams[getRandomInt(1, 13)]] : [positiveParams[getRandomInt(1, 13)]];
+	man.education = getRandomInt(0, 2);
+	man.virtual_experience = getRandomInt(3, 5); 
+	man.real_experience = getRandomInt(1, 3) == 1 ? getRandomInt(0, 4) : getRandomInt(3, 5);
+	man.rating_experience = man.virtual_experience;
+	man.questions_to = questions.sort(s => Math.random() - 0.5).slice(0, 3);
+	return man;
+}
 var application = new Vue({
 	data: {
 		data: 5,
@@ -116,10 +197,14 @@ var application = new Vue({
 		direct_phone: false,
 		events: false,
 		
+		names: names,
 		types: types,
 		
 		companies: companies,
 		company: companies[0],
+		
+		mens: [],
+		men: null,
 	},
 	methods: {
 		reset() {
@@ -140,6 +225,11 @@ var application = new Vue({
 		to_story() {
 			this.page = 'story';
 			startSlide(["story-1", "story-2", "story-3", "story-4", "story-5", "story-6", "story-7", "story-8", "story-9"], 3000, "difficult");
+		},
+		start_sobes() {
+			this.mens = [randomMan(), randomMan(), randomMan(), randomMan(), randomMan(), randomMan(), randomMan()];
+			this.men = this.mens[0];
+			this.page = 'sobes';
 		},
 	},
 });
